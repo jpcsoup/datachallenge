@@ -1,0 +1,59 @@
+---
+title: "Cava Data Challenge"
+author: "Jonathan Campbell"
+date: "December 3, 2015"
+output: pdf_document
+graphics: yes
+---
+
+```{r include=FALSE}
+library(data.table)
+library(plyr)
+library(dplyr)
+library(reshape2)
+library(ggplot2)
+```
+
+
+# Data Analysis:  
+
+You should have received a file named “data.csv” along with these instructions (if not, you can download from https://goo.gl/vI9p39). There are 3,000,000 rows; each row represents a consumer and a summary of his/her purchasing information. The first column is the day the person heard about Cava, the second is the number of days between hearing about Cava and first purchasing (a 0 means they heard and bought on the same day), and the third column is the total number of purchases the consumer has made at the time the data file was created1.
+Your task is to analyze the data and describe any meaningful insights you find (this task is open ended on purpose). Your analysis should be as thorough as possible. Feel free to be creative in your exploration and to document the process you used in your investigation. Pretty graphs are certainly welcome, but make sure there is sufficient textual analysis as well.
+
+```{r}
+df1 <- data.table::fread("data.csv", data.table = FALSE)
+
+```
+
+\pagebreak
+
+#Data Analysis 2:  
+
+You should have received a file named “cavaitemssold.csv” along with these instructions (if not, you can download from https://goo.gl/Q0qHSl). There are an unknown amount of rows; each row represents an item sold and a corresponding checkid. The first column is the item sold and the second is the checkid2. The question you are trying to answer is if people are more inclined to get certain items once they have selected other items.  
+Your task is to analyze the data and describe any meaningful insights you find (this task is open ended on purpose). Your analysis should be as thorough as possible. Feel free to be creative in your exploration and to document the process you used in your investigation. Pretty graphs are certainly welcome, but make sure there is sufficient textual analysis as well.  
+
+```{r}
+df2 <- data.table::fread("cavaitemssold.csv", data.table = FALSE)
+
+```
+
+
+\pagebreak
+
+#Study Design:
+One challenge we face at Cava Grill is in trying to find the best methods to motivate non-purchasing consumers to make their first purchase. One tactic is to simply give away a free bag of chips or a free entrée. Before giving away any money for food, though, we would like to determine the results we can expect by running a test first.  
+Your second task is to design such a test. The goal of the test is to determine whether or not giving a free pita card to consumers who have never purchased can successfully motivate them to make a first purchase. You may use any data you would reasonably expect a company like Cava Grill to have in preparing and executing your test. The test should be written as a business proposal and should include a section on the methods you intend on using for the evaluation of the test. A sample of some of the criteria you will be evaluated on include:  
+  
+  
+1. The clarity of the stated aims, hypotheses, and expected results  
+2. The appropriate generation of your consumer sample  
+3. Your test evaluation methods and statistical soundness  
+4. The extent to which you thoroughly investigate possible outcomes and conclusions  
+  
+
+Please be as specific as possible in your design. For instance, make sure that each of your design decisions have associated explicit reasoning.  
+
+```{r}
+
+```
+
