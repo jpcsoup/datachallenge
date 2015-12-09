@@ -1,16 +1,14 @@
 ---
 title: "Cava Data Challenge"
 author: "Jonathan Campbell"
-date: "December 3, 2015"
+date: "December 9, 2015"
 output: pdf_document
 graphics: yes
 ---
 
 ```{r include=FALSE}
-# library(data.table)
-# library(plyr)
-# library(dplyr)
-# library(reshape2)
+library(plyr)
+library(dplyr)
 library(ggplot2)
 ```
 
@@ -18,6 +16,7 @@ library(ggplot2)
 # Data Analysis:  
 
 *You should have received a file named “data.csv” along with these instructions (if not, you can download from https://goo.gl/vI9p39). There are 3,000,000 rows; each row represents a consumer and a summary of his/her purchasing information. The first column is the day the person heard about Cava, the second is the number of days between hearing about Cava and first purchasing (a 0 means they heard and bought on the same day), and the third column is the total number of purchases the consumer has made at the time the data file was created1.*  
+\break
 *Your task is to analyze the data and describe any meaningful insights you find (this task is open ended on purpose). Your analysis should be as thorough as possible. Feel free to be creative in your exploration and to document the process you used in your investigation. Pretty graphs are certainly welcome, but make sure there is sufficient textual analysis as well.*  
 
 ## Data Input
@@ -34,6 +33,7 @@ An initial look at the data shows us that our variables are in date and integer 
 df1 <- data.table::fread("data.csv", data.table = FALSE)
 df1$download_app <- as.Date(df1$download_app)
 df1$first_purchase <- as.Date(df1$first_purchase)
+
 # addition of id and additional variables
 df1$id <- 1:nrow(df1)
 df1$difftime <- as.numeric(df1$first_purchase - df1$download_app)
@@ -43,6 +43,7 @@ df1$same_day <- as.factor(ifelse(df1$difftime==0,TRUE,FALSE))
 ## Initial Exploration
 
 In addition to adding an ID variable, I added two more variables as well to caputure (1) the number of days between the date of download and a customer's first purchase and (2) an indicator as to whether a customer purchased the same day as downloading the app.  The reasoning behind adding in a same-day indicator is that the difference in immediate action versus delayed action might imply a difference in the distribution and the indicator will make subsetting between the two groups easier.  
+\break
 With this extra information added, I'd like to gain a bit more information about the distribution of downloads and purchases.  The first concern is whether there are any missing values or are there individuals in the set who have either purchased withough downloading the app or downloaded the app without making a purchase.
 
 ```{r}
@@ -92,7 +93,7 @@ With this relationship in mind, I plan to run a survival analysis to look at the
 
 ## Survival Rate
 
-```{r}
+```{r warning=FALSE}
 # Survival Analysis
 df1$start_time <- 0
 df1$difftime2 <- df1$difftime + 1/(24*60) # Added a minute to all times in order to use a gamme MLE
@@ -126,42 +127,120 @@ lines( sort(df1$difftime) , # EXPOENTIAL
          sort(df1$difftime) , 
          rate = dist3$estimate[1]), 
        col = "green" , lty = 2 , lwd = 2 )
-
 ```
 
 Above, there are two charts that display the results of applying a survivial function to the data to determine the distribution of delay times for customer purchased.  Unsurprisingly, we see a fairly smooth survival rate considering the distributions seen before.  The plot on the left shows the Kaplan-Meier estimate for the survival rate.  From this plot, we can estimate a 50% probability that a customer hasn't made thier first purchase after the first week that probability decreases to about 12.5% after two weeks.  
+\break
 This survival curve very closely resembles the the density curve for the distribution of wait times.  In order to generalize what we believe to be this distribution, I attempted to fit two probability models: the gamma distribution (blue) and the expenential distribution (green), both of which are commonly used to model waiting times.  The result of this fit can be seen on the right, where we can see an almost perfect fit with an exponential distribution with the parameterization $\lambda =`r dist3$estimate[1]`$.
 
 \pagebreak
 
 # Data Analysis 2:  
 
-*You should have received a file named “cavaitemssold.csv” along with these instructions (if not, you can download from https://goo.gl/Q0qHSl). There are an unknown amount of rows; each row represents an item sold and a corresponding checkid. The first column is the item sold and the second is the checkid2. The question you are trying to answer is if people are more inclined to get certain items once they have selected other items.*  
+*You should have received a file named “cavaitemssold.csv” along with these instructions (if not, you can download from goo.gl/4tVcWk). There are an unknown amount of rows; each row represents an item sold and a corresponding checkid. The first column is the item sold and the second is the checkid2. The question you are trying to answer is if people are more inclined to get certain items once they have selected other items.* 
+\break
 *Your task is to analyze the data and describe any meaningful insights you find (this task is open ended on purpose). Your analysis should be as thorough as possible. Feel free to be creative in your exploration and to document the process you used in your investigation. Pretty graphs are certainly welcome, but make sure there is sufficient textual analysis as well.*  
 
-```{r}
-#df2 <- data.table::fread("cavaitemssold.csv", data.table = FALSE)
+## Data Input
 
+```{r}
+# Look at Data Structure
+readLines("cavaitemssold.csv", 5)
 ```
 
+Once again, we can take an initial look at the data which shows us that our variables are in menu items and transaction ids.  Different from the first dataset, each row of data represents one item in a larger order.  Aggregating this data so that we can get more information about individial order will require some data transformation.
+
+```{r}
+# Read in Data
+df2 <- data.table::fread("cavaitemssold.csv", data.table = FALSE)
+
+protein <- c("braised_beef","meatballs","braised_lamb","Chicken","falafel", "Greens&Grains")
+meal <- c("Salad","Bowl","Minis","Pita","lamb_sliders")
+side <- c("large_drink","small_drink","chips","cookie","soup")
+
+df2_orders <- left_join(
+  df2 %>%
+    group_by(transactionid) %>%
+    summarize(tot_items=n(),
+              proteins=sum(item %in% protein),
+              meals=sum(item %in% meal),
+              sides=sum(item %in% side)),
+  reshape2::dcast(df2, transactionid ~ item, fun.aggregate = length))
+
+library(corrplot)
+itemcorr <- cor(df2_orders[,-1:-5])
+corrplot(itemcorr, method="color", order = "FPC")
+
+mealprotein <- reshape2::melt(cor(df2_orders[,protein],df2_orders[,meal]))
+ggplot(mealprotein, aes(x=Var1, y=Var2, fill=value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "red", high = "blue", mid = "white") +
+  theme_bw()
+
+mealside <- reshape2::melt(cor(df2_orders[,side],df2_orders[,meal]))
+ggplot(mealside, aes(x=Var1, y=Var2, fill=value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "red", high = "blue", mid = "white") +
+  theme_bw()
+
+protein <- c("braised_lamb","braised_beef","meatballs","Greens&Grains","Chicken","falafel")
+side <- c("soup","cookie","small_drink","large_drink","chips")
+proteinside <- reshape2::melt(cor(df2_orders[,protein],df2_orders[,side]))
+ggplot(proteinside, aes(x=Var1, y=Var2, fill=value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "red", high = "blue", mid = "white") +
+  theme_bw()
+
+itemcorr[upper.tri(itemcorr, diag=T)] <- NA
+itemcorr <- na.omit(arrange(reshape2::melt(itemcorr, value.name="corr"), -corr))
+itemcorr <- itemcorr[itemcorr$corr!=1,]
+head(itemcorr,10)
+```
+
+## Analysis
+
+Visualized above, we have multiple correlation plots for the menu items contained within the dataset.  The first plot displays the correlations among all of the different menu items.  First off from the graph, we can see that there tends to be either negative correlation or slight positive correlation between items of the same category.  The subsequent plots are breakdowns of correlations for different types of menu items.  
+\break
+The first subset, looks at the correlations between protein choices and meal options.  We can see that there tends to be a large correlation with chicken bowls and also with falafel salads.  
+\break
+The second subset, looks at the correlations between meal options and side choices.  While all combinations share a positive correlation, the lamb sliders tend to have the largies correlation with different sides, and chips tends to have the highest correlations with different meals.  
+\break
+Finally, the last subset shows the correlations between protein choices and different sides. This plot shows the strongest progressive trend across both axes.  While the strongest correlations exist between chips and braised lamb and cookies and braised beef, we see that in general braised lamb has positive correlations with all sides and falafel has negative correlations with all sides.  We might imagine there correlations to be in line with the tendancy for customers to make choices consistent with being health conscious.  
+\break
+Lastly, I've listed the 10 pairs of items that tend to be grouped together most frequently.
 
 \pagebreak
 
 # Study Design:  
 
-One challenge we face at Cava Grill is in trying to find the best methods to motivate non-purchasing consumers to make their first purchase. One tactic is to simply give away a free bag of chips or a free entrée. Before giving away any money for food, though, we would like to determine the results we can expect by running a test first.  
-Your second task is to design such a test. The goal of the test is to determine whether or not giving a free pita card to consumers who have never purchased can successfully motivate them to make a first purchase. You may use any data you would reasonably expect a company like Cava Grill to have in preparing and executing your test. The test should be written as a business proposal and should include a section on the methods you intend on using for the evaluation of the test. A sample of some of the criteria you will be evaluated on include:  
+*One challenge we face at Cava Grill is in trying to find the best methods to motivate non-purchasing consumers to make their first purchase. One tactic is to simply give away a free bag of chips or a free entrée. Before giving away any money for food, though, we would like to determine the results we can expect by running a test first.*  
+*Your second task is to design such a test. The goal of the test is to determine whether or not giving a free pita card to consumers who have never purchased can successfully motivate them to make a first purchase. You may use any data you would reasonably expect a company like Cava Grill to have in preparing and executing your test. The test should be written as a business proposal and should include a section on the methods you intend on using for the evaluation of the test. A sample of some of the criteria you will be evaluated on include:*  
   
   
-1. The clarity of the stated aims, hypotheses, and expected results  
-2. The appropriate generation of your consumer sample  
-3. Your test evaluation methods and statistical soundness  
-4. The extent to which you thoroughly investigate possible outcomes and conclusions  
+1. *The clarity of the stated aims, hypotheses, and expected results*  
+2. *The appropriate generation of your consumer sample*  
+3. *Your test evaluation methods and statistical soundness*  
+4. *The extent to which you thoroughly investigate possible outcomes and conclusions*  
   
 
-Please be as specific as possible in your design. For instance, make sure that each of your design decisions have associated explicit reasoning.  
+*Please be as specific as possible in your design. For instance, make sure that each of your design decisions have associated explicit reasoning.*  
 
-```{r}
 
-```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
