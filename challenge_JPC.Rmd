@@ -42,9 +42,9 @@ df1$same_day <- as.factor(ifelse(df1$difftime==0,TRUE,FALSE))
 
 ## Initial Exploration
 
-In addition to adding an ID variable, I added two more variables as well to caputure (1) the number of days between the date of download and a customer's first purchase and (2) an indicator as to whether a customer purchased the same day as downloading the app.  The reasoning behind adding in a same-day indicator is that the difference in immediate action versus delayed action might imply a difference in the distribution and the indicator will make subsetting between the two groups easier.  \break
+In addition to adding an ID variable, I added two more variables as well to capture (1) the number of days between the date of download and a customer's first purchase and (2) an indicator as to whether a customer purchased the same day as downloading the app.  The reasoning behind adding in a same-day indicator is that the difference in immediate action versus delayed action might imply a difference in the distribution and the indicator will make sub setting between the two groups easier.  \break
   
-With this extra information added, I'd like to gain a bit more information about the distribution of downloads and purchases.  The first concern is whether there are any missing values or are there individuals in the set who have either purchased withough downloading the app or downloaded the app without making a purchase.
+With this extra information added, I'd like to gain a bit more information about the distribution of downloads and purchases.  The first concern is whether there are any missing values or are there individuals in the set who have either purchased without downloading the app or downloaded the app without making a purchase.
 
 ```{r}
 # Are there missing values?
@@ -87,11 +87,11 @@ ggplot(df1, aes(x=difftime, y=purchases)) +
   theme_bw() 
 ```
 
-The facet plot above shows us the density of points for subsequent purchases both boased on download date and first purchase date.  From this first plot, we can see that the distribution of subsequent purchases seems to be steady across time, regardless of download date or date of first purchase as well as whenther you purchased same day or later.  This is fairly interesting becasue it indicates that there isn't much of a relationship between the number of subsequent purchases and your download/purchase date.   \break
+The facet plot above shows us the density of points for subsequent purchases both based on download date and first purchase date.  From this first plot, we can see that the distribution of subsequent purchases seems to be steady across time, regardless of download date or date of first purchase as well as whether you purchased same day or later.  This is fairly interesting because it indicates that there isn't much of a relationship between the number of subsequent purchases and your download/purchase date.   \break
   
 The second plot shows the distribution of days until first purchase across time. Once again we see a steady relationship across time regarding the habits of users to purchase for the first time. These lack of changing trends will make the analysis easier as it seems we can exclude time as a factor.  \break
   
-Finally, seeing no need to control for time, the last plot looks at the number of subsequent purchases by purchase delay.  This graph shouls a clear negative relationship such that a smaller purchase delay correspons with a larger range of subsequent purchases. While strength of the trend is amplified by time limitations, it does display that users are more likely to purchase more over shorter periods of time with a shorter purchase delay.  \break
+Finally, seeing no need to control for time, the last plot looks at the number of subsequent purchases by purchase delay.  This graph shows a clear negative relationship such that a smaller purchase delay corresponds with a larger range of subsequent purchases. While strength of the trend is amplified by time limitations, it does display that users are more likely to purchase more over shorter periods of time with a shorter purchase delay.  \break
   
 With this relationship in mind, I plan to run a survival analysis to look at the propensity of a customer to purchase over time by using the initial download date and the first purchase date.  
 
@@ -133,9 +133,9 @@ lines( sort(df1$difftime) , # EXPOENTIAL
        col = "green" , lty = 2 , lwd = 2 )
 ```
 
-Above, there are two charts that display the results of applying a survivial function to the data to determine the distribution of delay times for customer purchased.  Unsurprisingly, we see a fairly smooth survival rate considering the distributions seen before.  The plot on the left shows the Kaplan-Meier estimate for the survival rate.  From this plot, we can estimate a 50% probability that a customer hasn't made thier first purchase after the first week that probability decreases to about 12.5% after two weeks.  \break
+Above, there are two charts that display the results of applying a survival function to the data to determine the distribution of delay times for customer purchased.  Unsurprisingly, we see a fairly smooth survival rate considering the distributions seen before.  The plot on the left shows the Kaplan-Meier estimate for the survival rate.  From this plot, we can estimate a 50% probability that a customer hasn't made their first purchase after the first week that probability decreases to about 12.5% after two weeks.  \break
   
-This survival curve very closely resembles the the density curve for the distribution of wait times.  In order to generalize what we believe to be this distribution, I attempted to fit two probability models: the gamma distribution (blue) and the expenential distribution (green), both of which are commonly used to model waiting times.  The result of this fit can be seen on the right, where we can see an almost perfect fit with an exponential distribution with the parameterization $\lambda =`r dist3$estimate[1]`$.
+This survival curve very closely resembles the the density curve for the distribution of wait times.  In order to generalize what we believe to be this distribution, I attempted to fit two probability models: the gamma distribution (blue) and the exponential distribution (green), both of which are commonly used to model waiting times.  The result of this fit can be seen on the right, where we can see an almost perfect fit with an exponential distribution with the parameterization $\lambda =`r dist3$estimate[1]`$.
 
 \pagebreak
 
@@ -152,7 +152,7 @@ This survival curve very closely resembles the the density curve for the distrib
 readLines("cavaitemssold.csv", 5)
 ```
 
-Once again, we can take an initial look at the data which shows us that our variables are in menu items and transaction ids.  Different from the first dataset, each row of data represents one item in a larger order.  Aggregating this data so that we can get more information about individial order will require some data transformation.
+Once again, we can take an initial look at the data which shows us that our variables are in menu items and transaction ids.  Different from the first data set, each row of data represents one item in a larger order.  Aggregating this data so that we can get more information about individual order will require some data transformation.
 
 ```{r}
 # Read in Data
@@ -203,13 +203,13 @@ head(itemcorr,10)
 
 ## Analysis
 
-Visualized above, we have multiple correlation plots for the menu items contained within the dataset.  The first plot displays the correlations among all of the different menu items.  First off from the graph, we can see that there tends to be either negative correlation or slight positive correlation between items of the same category.  The subsequent plots are breakdowns of correlations for different types of menu items.  \break
+Visualized above, we have multiple correlation plots for the menu items contained within the data set.  The first plot displays the correlations among all of the different menu items.  First off from the graph, we can see that there tends to be either negative correlation or slight positive correlation between items of the same category.  The subsequent plots are breakdowns of correlations for different types of menu items.  \break
   
 The first subset, looks at the correlations between protein choices and meal options.  We can see that there tends to be a large correlation with chicken bowls and also with falafel salads.  \break
   
-The second subset, looks at the correlations between meal options and side choices.  While all combinations share a positive correlation, the lamb sliders tend to have the largies correlation with different sides, and chips tends to have the highest correlations with different meals.  \break
+The second subset, looks at the correlations between meal options and side choices.  While all combinations share a positive correlation, the lamb sliders tend to have the largest correlation with different sides, and chips tends to have the highest correlations with different meals.  \break
   
-Finally, the last subset shows the correlations between protein choices and different sides. This plot shows the strongest progressive trend across both axes.  While the strongest correlations exist between chips and braised lamb and cookies and braised beef, we see that in general braised lamb has positive correlations with all sides and falafel has negative correlations with all sides.  We might imagine there correlations to be in line with the tendancy for customers to make choices consistent with being health conscious.  \break
+Finally, the last subset shows the correlations between protein choices and different sides. This plot shows the strongest progressive trend across both axes.  While the strongest correlations exist between chips and braised lamb and cookies and braised beef, we see that in general braised lamb has positive correlations with all sides and falafel has negative correlations with all sides.  We might imagine there correlations to be in line with the tendency for customers to make choices consistent with being health conscious.  \break
   
 Lastly, I've listed the 10 pairs of items that tend to be grouped together most frequently.
 
@@ -230,38 +230,38 @@ Lastly, I've listed the 10 pairs of items that tend to be grouped together most 
 
 ## Inital Aims
 
-In our efforts to increase our customer base and volumn of sales, it is necessary to find the most expedient avenues to accomplish this goal.  A common business practice incentivizes new customers through a promotion, either by offering a discount or complimentary gift.  Here at Cava Grill, we are also considering such a promotion, but in order to fully commit to such a program, we must evaluate the impact that such a campaign will have and whether it is worth the revenue forfeit by the promotion. This proposal will set for a framework for implementing such a promotion and evaluating it's success or failure. The evaluation will seek to prove two separate, but connected outcomes:  
+In our efforts to increase our customer base and volume of sales, it is necessary to find the most expedient avenues to accomplish this goal.  A common business practice incentives new customers through a promotion, either by offering a discount or complimentary gift.  Here at Cava Grill, we are also considering such a promotion, but in order to fully commit to such a program, we must evaluate the impact that such a campaign will have and whether it is worth the revenue forfeit by the promotion. This proposal will set for a framework for implementing such a promotion and evaluating it's success or failure. The evaluation will seek to prove two separate, but connected outcomes:  
 
 1. The promotion will decrease the time until a new customer's first purchase, and  
-2. The accelereated timeline will be maintained in the subsequeny purchase habits of customers.   
+2. The accelerated timeline will be maintained in the subsequent purchase habits of customers.   
 
 ## General Test Structure - A|B Testing  
 
-At its base, this type of test requires some type of camparison in order to be thoroughly evaluated.  In this case, we will need a sample of potential customers that was exposed to the new promotion (treatment) and a sample of potential customers who was not exposed (control).  Additionally, we have to determine the best way to identify new customers and not apply the promotion to existing customers.  Leaving the challenge of removing repeat customers aside for the moment, we can consider different ways in which we might segment our customer into our treatment and control groups:  
+At its base, this type of test requires some type of comparison in order to be thoroughly evaluated.  In this case, we will need a sample of potential customers that was exposed to the new promotion (treatment) and a sample of potential customers who was not exposed (control).  Additionally, we have to determine the best way to identify new customers and not apply the promotion to existing customers.  Leaving the challenge of removing repeat customers aside for the moment, we can consider different ways in which we might segment our customer into our treatment and control groups:  
 
 1. Offering the new customer promotion at certain restaurant locations  
 
 For this first method, we would create in store advertisements and promotions at different store locations.  Here our treatment group would consist of new customers attained at locations with the promotion and our control group would consist of new customers attained at locations not offering the promotion. While this method would most likely be the easiest to implement, there are several drawbacks.  
 
-    * Inherently, different store locations will have access to different subsets of the customer population (e.g. some locations will have much higher proportions of working professionals whereas another may be comprised mostly of college students)  
-    * This model does not let us place individual customers in the treatment or control group as they may have access to multiple locations.  
-    * Restaurant choice might very well present itself as a confounding factor.  Let's say that we were able to pair each of our restaurants such that each pair shares access to population subsets with nearly identical characteristics; customers with access to a treatment and control location might very well opt to make their first purchase at the treatment location in order to take advantage of the promotion.  
+  * Inherently, different store locations will have access to different subsets of the customer population (e.g. some locations will have much higher proportions of working professionals whereas another may be comprised mostly of college students)  
+  * This model does not let us place individual customers in the treatment or control group as they may have access to multiple locations.  
+  * Restaurant choice might very well present itself as a confounding factor.  Let's say that we were able to pair each of our restaurants such that each pair shares access to population subsets with nearly identical characteristics; customers with access to a treatment and control location might very well opt to make their first purchase at the treatment location in order to take advantage of the promotion.  
 
 2. Randomly extend the promotion to our website and app visitors  
 
-This second method would allow us to directly place all of our website visitors into either the treatment or control group.  By controling for IP address, we will track the unique visitors to our page (or app users without a linked purchase) and then compare the total number of new customers who either used the promotion or did not across all of our locations. A small drawback to this approach is the inability to exclude repeat customers from the   
+This second method would allow us to directly place all of our website visitors into either the treatment or control group.  By controlling for IP address, we will track the unique visitors to our page (or app users without a linked purchase) and then compare the total number of new customers who either used the promotion or did not across all of our locations. A small drawback to this approach is the inability to exclude repeat customers from the   
 
 3. Run a universal promotion for a short period of time, using past customer information as our control  
 
-The third approach tends to be a fairly common practice.  This method would allow us to use all of our existing customer metrics and data collection as we would simply compare the trend before the promotion to the trend after the promotion.  This type of quasi-experiment is beneficial for we would no longer have to deal with the randomization problem on new customers, however, it might create a confounding effct in that customers already introduced to Cava will be included once the treatment goes live, resulting in a potentially longer trial time for the experiment.
+The third approach tends to be a fairly common practice.  This method would allow us to use all of our existing customer metrics and data collection as we would simply compare the trend before the promotion to the trend after the promotion.  This type of quasi-experiment is beneficial for we would no longer have to deal with the randomization problem on new customers, however, it might create a confounding effect in that customers already introduced to Cava will be included once the treatment goes live, resulting in a potentially longer trial time for the experiment.
 
 4. Use third party marketing with a treatment and control advertisement  
 
-Finally, the last approach is the use of third party marketing to manage the release of the promotion to our consumer population.  By using a platform such as a Facebook ad campaing, despite the additional cost, we would be able to target customers both by location and multiple consumer demographics.  Additionally, we can obtain an estimate for the number of customers being introduced through our advertisement.  A drawback to this method is that we are unable to directly link potential new customers who where introduced to the control ad to those who weren't.  However, this method does provide some distinct advantages:
+Finally, the last approach is the use of third party marketing to manage the release of the promotion to our consumer population.  By using a platform such as a Facebook ad campaign, despite the additional cost, we would be able to target customers both by location and multiple consumer demographics.  Additionally, we can obtain an estimate for the number of customers being introduced through our advertisement.  A drawback to this method is that we are unable to directly link potential new customers who where introduced to the control ad to those who weren't.  However, this method does provide some distinct advantages:
 
-    * Our split of our customers into our testing and control group will be done automatically and done with fairly good precision by controlling for unique user  
-    * With the addition of more consumer information, we can control for differences in the make up of the sample size when applying our test for effect  
-    * Through the use of media tracking and page tagging, we can subset our population further to follow just those reached by the test  
+  * Our split of our customers into our testing and control group will be done automatically and done with fairly good precision by controlling for unique user  
+  * With the addition of more consumer information, we can control for differences in the make up of the sample size when applying our test for effect  
+  * Through the use of media tracking and page tagging, we can subset our population further to follow just those reached by the test  
 
 ## The Repeat Customer Problem
 
@@ -269,11 +269,11 @@ Turning back to the consideration that we set aside, we want to make sure that w
 
 ## Sample Size Calculation
 
-Determining the proper sample size for this test depends on our current ad to app download conversion rate, the increase at which we find the promotion monetarily feasible, and the confidence with which we are comfortable making that conclusion.  Given that information, we could calculate the differente in proportion based on the following equation:  
+Determining the proper sample size for this test depends on our current ad to app download conversion rate, the increase at which we find the promotion monetarily feasible, and the confidence with which we are comfortable making that conclusion.  Given that information, we could calculate the difference in proportion based on the following equation:  
 
 $$n=\frac{z^2pq}{d^2}$$  
 
-For example, if our initial conversion rate was 2%, we wannted to use a 95% confidence interval, and we needed an increased conversion of 0.5% to justify the promotion, our sample size would be as follows:  
+For example, if our initial conversion rate was 2%, we wanted to use a 95% confidence interval, and we needed an increased conversion of 0.5% to justify the promotion, our sample size would be as follows:  
 
 $$n=\frac{(1.96)^2(0.02)(0.98)}{0.05^2}=`r round(1.96^2*.02*.98/.005^2,2)`$$  
 
@@ -295,10 +295,10 @@ The first objective expressed in this proposal was determining that this promoti
 
 The second objective expressed in this proposal was determining that the time between subsequent purchases also decreased.  For this aim, we can actually use a much larger selection of our internal data, but we can consider time between purchases to be the average amount of time between purchases for any particular customer.  \break
   
-Both of these objectives can be evaulated though the use of maximum likelihood estimation. Thus for each set, we will construct probability distributions for the waiting times for customers between exposure and first purchase and between subsequent purchases respectively.  In the former case, we can create this distribution from the customers within the control group that made a purchase.  In the latter case, we can use large collection of data that corresponds to the delay between purchases given that these customers did not participate in the promotion.  These probability distributions will be constructed through solving the following optimization problem:  
+Both of these objectives can be evaluated though the use of maximum likelihood estimation. Thus for each set, we will construct probability distributions for the waiting times for customers between exposure and first purchase and between subsequent purchases respectively.  In the former case, we can create this distribution from the customers within the control group that made a purchase.  In the latter case, we can use large collection of data that corresponds to the delay between purchases given that these customers did not participate in the promotion.  These probability distributions will be constructed through solving the following optimization problem:  
 
 $$\underset{\Theta} {\mathrm{argmax}} ~P(\Theta|x_1,...,x_n)$$  
 
 Where $\Theta:=$ the parameterization of a given probability distribution  
 
-Evaluating our objectives can thus be accomplished by calculating the probability of the data, given the result of the optimization problem above [$~P(x^*_1,...,x^*_n|\Theta_{ML})$].  If that probability is significantly small, we can conclude that the times for the experimental groups follows a diffenent distribution, for which we can create a new ML estimate.
+Evaluating our objectives can thus be accomplished by calculating the probability of the data, given the result of the optimization problem above [$~P(x^*_1,...,x^*_n|\Theta_{ML})$].  If that probability is significantly small, we can conclude that the times for the experimental groups follows a different distribution, for which we can create a new ML estimate.
